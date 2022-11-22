@@ -1,0 +1,31 @@
+parameters:
+- name: azureSubscriptionEndpoint
+  type: string
+- name: kubernetesCluster
+  type: string
+- name: azureResourceGroup
+  type: string
+- name: inlineScript
+  type: string
+- name: displayName
+  type: string
+  default: Modify Cluster
+
+steps:
+- task: AzureCLI@2
+  displayName: ${{ parameters.displayName }}
+  inputs:
+    azureSubscription: '${{ parameters.azureSubscriptionEndpoint }}'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az login --service-principal -u $servicePrincipalId -p $servicePrincipalKey -t $tenantId
+      mkdir -p .bin
+      az aks install-cli --install-location .bin/kubectl  # install kubelogin
+      az aks get-credentials -n ${{ parameters.kubernetesCluster }} -g ${{ parameters.azureResourceGroup }}
+      kubelogin convert-kubeconfig -l azurecli
+      kubectl cluster-info
+      set -e
+      ${{ parameters.inlineScript }}
+      set +e
+    addSpnToEnvironment: true
