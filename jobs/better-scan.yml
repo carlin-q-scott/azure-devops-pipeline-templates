@@ -1,0 +1,46 @@
+parameters:
+  - name: condition
+    displayName: When to run the scan
+    type: string
+
+jobs:
+  - job: SAST
+    displayName: Static Application Security Test (SAST)
+    condition: ${{ parameters.condition }}
+    pool:
+      vmImage: 'ubuntu-latest'
+    container: 'scanmycode/scanmycode3-ce:worker-cli'
+    steps:
+    - script: |
+        sudo apt-get update
+        sudo apt-get install git-lfs
+      displayName: Install git LFS
+      
+    - checkout: self
+      persistCredentials: true
+
+    - script: |
+        set -e
+        git config --global user.email "azuredevops@microsoft.com"
+        git config --global user.name "Azure DevOps" 
+        git checkout -b $(Build.SourceBranchName)
+        sudo CODE_DIR=$(Build.SourcesDirectory) checkmate init
+        sudo CODE_DIR=$(Build.SourcesDirectory) checkmate git init
+        sudo CODE_DIR=$(Build.SourcesDirectory) checkmate git analyze --branch $(Build.SourceBranchName)
+        sudo CODE_DIR=$(Build.SourcesDirectory) checkmate issues html
+      displayName: Static Application Security Test (SAST)
+      env:
+        CODE_DIR: '$(Build.SourcesDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      displayName: Publish SAST report
+      inputs:
+        PathtoPublish: $(Build.SourcesDirectory)
+        ArtifactName: CodeAnalysisLogs
+
+    - script: |
+        git add .checkmate/db.sqlite
+        git add report.html
+        git commit -m '[ci skip] update checkmate db'
+        git push origin $(Build.SourceBranchName):$(Build.SourceBranch)
+      displayName: Commit and Push checkmate db
