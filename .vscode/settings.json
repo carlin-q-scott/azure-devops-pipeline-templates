@@ -1,0 +1,7 @@
+{
+    "yaml.schemas": {
+        "file:///c%3A/Users/CarlinScott_16zs210/.vscode/extensions/atlassian.atlascode-2.10.12/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
+        "file:///c%3A/Users/CarlinScott_16zs210/.vscode/extensions/docsmsft.docs-yaml-0.2.9/out/yaml-support/toc.schema.json": "/toc\\.yml/i",
+        "https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json": "vscode-vfs://github%2B7b2276223a312c22726566223a7b2274797065223a342c226964223a22666561747572652f6265747465722d7363616e227d7d/carlin-q-scott/azure-devops-pipeline-templates/jobs/better-scan.yml"
+    }
+}
